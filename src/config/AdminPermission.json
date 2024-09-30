@@ -1,0 +1,56 @@
+{
+    "modules": [
+        {
+            "id": 1,
+            "name": "Users",
+            "permissions": ["View", "Create", "Update", "Delete", "Download", "Print", "LoginAs"]
+        },
+        {
+            "id": 2,
+            "name": "Settings",
+            "permissions": ["View", "Create", "Update", "Delete", "Download", "Print"]
+        },
+        {
+            "id": 3,
+            "name": "Payment",
+            "permissions": ["View", "Create", "Update", "Delete", "Download", "Print"]
+        },
+        {
+            "id": 4,
+            "name": "Machines",
+            "permissions": ["View", "Create", "Update", "Delete", "Download", "Print"]
+        }
+    ],
+    "roles": [
+        {
+            "id": 1,
+            "name": "superadmin",
+            "permissions": {
+                "Machines": ["View", "Create", "Update", "Delete", "Download", "Print"],
+                "Payment": ["View", "Create", "Update", "Delete", "Download", "Print"],
+                "Settings": ["View", "Create", "Update", "Delete", "Download", "Print"],
+                "Users": ["View", "Create", "Update", "Delete", "Download", "Print", "LoginAs"]
+            }
+        },
+        {
+            "id": 2,
+            "name": "admin",
+            "permissions": {
+                "Machines": ["View"],
+                "Payment": ["View"],
+                "Settings": ["View"],
+                "Users": ["View"]
+            }
+        },
+        {
+            "id": 3,
+            "name": "employee",
+            "permissions": {
+                "Machines": ["View"],
+                "Payment": [],
+                "Settings": [],
+                "Users": []
+            }
+        }
+    ]
+}
