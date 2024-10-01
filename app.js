@@ -77,6 +77,11 @@ const productRoutes = require("./src/routes/Product");
 
 app.use("/api/v1/product", productRoutes);
 
+// New Product.
+const newProductRoutes = require("./src/routes/newProduct");
+
+app.use("/api/v1/products", newProductRoutes);
+
 // Student
 const studentRoutes = require("./src/routes/Student");
 
@@ -103,8 +108,8 @@ app.use(
 );
 // Day calculations
 
-const dayRoutes = require('./src/routes/dayRoutes');
-app.use('/api/v1', dayRoutes);
+const dayRoutes = require("./src/routes/dayRoutes");
+app.use("/api/v1", dayRoutes);
 
 // Payment
 const paymentRoutes = require("./src/routes/PaymentMethods");
