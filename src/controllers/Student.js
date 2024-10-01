@@ -54,11 +54,7 @@ exports.GetStudent = async (req, res) => {
     .lean()
     .exec(function (err, data) {
       if (err) {
-        return res.jsonp({
-          status: "failure",
-          messageId: 203,
-          message: constantObj.messages.ErrorRetrievingData,
-        });
+        return res.jsonp(errorHandler(err.message))
       }
 
       return res.jsonp({
