@@ -2,6 +2,7 @@ const constantObj = require("../config/Constants");
 const ProductObj = require("../models/newProduct");
 const { errorHandler } = require("../helpers/helperFunctions");
 
+// Get all Products from list.
 exports.GetAllProduct = (req, res) => {
   ProductObj.find()
     .sort({ name: 1 })
@@ -31,6 +32,7 @@ const generateAlphanumericID = (length) => {
   return result;
 };
 
+// Add Product.
 exports.AddProduct = async (req, res) => {
   try {
     const newProductId = await checkProductId();
@@ -70,6 +72,7 @@ async function checkProductId() {
   return newProductId;
 }
 
+// Update the product.
 exports.UpdateProduct = async (req, res) => {
   try {
     const { quantity } = req.body;
