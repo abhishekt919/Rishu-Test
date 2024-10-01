@@ -28,6 +28,7 @@ app.use(logger("dev"));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(cookieParser());
+app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use((req, res, next) => {
@@ -100,6 +101,10 @@ app.use(
   express.static(path.join(__dirname, "public/uploads")),
   uploadFileRoutes
 );
+// Day calculations
+
+const dayRoutes = require('./src/routes/dayRoutes');
+app.use('/api/v1', dayRoutes);
 
 // Payment
 const paymentRoutes = require("./src/routes/PaymentMethods");
