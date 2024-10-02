@@ -18,6 +18,17 @@ const NewProductSchema = new Schema(
   },
   { timestamps: true }
 );
+NewProductSchema.pre("save", function (next) {
+  if (this.quantity > 5) {
+    this.status = "available";
+  } else if (this.quantity > 0 && this.quantity <= 5) {
+    this.status = "low stock";
+  } else if (this.quantity === 0) {
+    this.status = "unavailable";
+  }
+  next();
+});
+
 
 const NewProductObj = mongoose.model("NewProduct", NewProductSchema);
 module.exports = NewProductObj;
