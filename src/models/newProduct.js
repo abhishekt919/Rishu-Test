@@ -1,4 +1,3 @@
-const { upperCase } = require("lodash");
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
@@ -18,6 +17,7 @@ const NewProductSchema = new Schema(
   },
   { timestamps: true }
 );
+
 NewProductSchema.pre("save", function (next) {
   if (this.quantity > 5) {
     this.status = "available";
