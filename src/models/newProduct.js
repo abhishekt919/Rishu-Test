@@ -29,6 +29,5 @@ NewProductSchema.pre("save", function (next) {
   next();
 });
 
-
 const NewProductObj = mongoose.model("NewProduct", NewProductSchema);
 module.exports = NewProductObj;
