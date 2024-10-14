@@ -1,46 +1,48 @@
 const mongoose = require("mongoose");
 const Cart = require("../models/Cart");
 const ProductObj = require("../models/Product");
-const constantObj = require("../config/Constants");
-const { errorHandler } = require("../helpers/helperFunctions");
+const User = require("../models/User"); // Import the User model
 
+// Add item to cart
 exports.addItemToCart = async (req, res) => {
   const { productId, quantity } = req.body;
 
   try {
-    // Check if the product exists
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.jsonp({
+        status: "error",
+        messageId: 404,
+        message: "User not found",
+      });
+    }
+
     const product = await ProductObj.findById(productId);
     if (!product) {
-      return res.status(404).jsonp({
+      return res.jsonp({
         status: "error",
+        messageId: 404,
         message: "Product not found",
       });
     }
 
-    // Find or create a single cart
-    let cart = await Cart.findOne();
+    // Find or create a cart for the user
+    let cart = await Cart.findOne({ userId: user._id });
     if (!cart) {
-      cart = new Cart({ items: [] });
+      cart = new Cart({ userId: user._id, items: [] });
     }
 
     // Check if sufficient quantity is available
     if (product.quantity < quantity) {
-      return res.status(400).jsonp({
+      return res.jsonp({
         status: "error",
         messageId: 400,
         message: "Insufficient product quantity",
       });
     }
 
-    // Decrease the product quantity
     product.quantity -= quantity;
-
-    // Update status to "Unavailable" if the quantity becomes 0
-    if (product.quantity === 0) {
-      product.isAvailable = false;
-    }
-
-    // Save the updated product
+    product.isAvailable = product.quantity > 0;
     await product.save();
 
     // Check if the product is already in the cart
@@ -48,35 +50,33 @@ exports.addItemToCart = async (req, res) => {
       (item) => item.productId.toString() === productId
     );
     if (itemIndex > -1) {
-      // Update the quantity if the product is already in the cart
+      // Update the quantity
       cart.items[itemIndex].quantity += quantity;
     } else {
-      // Add the new product to the cart
+      // Add new item
       cart.items.push({ productId, quantity });
     }
 
     // Save the cart
     await cart.save();
-
     return res.jsonp({
       status: "success",
-      messageId: 200,
       message: "Item added to cart",
       data: cart,
     });
   } catch (error) {
-    console.error("Error adding item to cart:", error);
-    return res.status(500).jsonp({
+    return res.jsonp({
       status: "error",
+      messageId: 500,
       message: "Internal Server Error",
     });
   }
 };
 
-// Get Cart
+// Get cart
 exports.getCart = async (req, res) => {
   try {
-    const cart = await Cart.findOne().populate("items.productId");
+    const cart = await Cart.findOne({ userId: req.user._id }).populate("items.productId");
     if (!cart) {
       return res.jsonp({
         status: "success",
@@ -88,37 +88,40 @@ exports.getCart = async (req, res) => {
       status: "success",
       messageId: 200,
       data: cart,
+      message: "Cart Data."
     });
   } catch (error) {
     console.error("Error fetching cart:", error);
-    return res.status(500).jsonp({
+    return res.jsonp({
       status: "error",
+      messageId: 500,
       message: "Internal Server Error",
     });
   }
 };
 
-// update
+// Update or remove item from cart
 exports.updateOrRemoveItemFromCart = async (req, res) => {
   const { productId, quantity } = req.body;
 
   try {
-    let cart = await Cart.findOne(); // Assuming there's only one cart or you need to find the cart based on a user or session.
+    let cart = await Cart.findOne({ userId: req.user._id });
     if (!cart) {
-      return res.status(404).jsonp({
+      return res.jsonp({
         status: "error",
+        messageId: 404,
         message: "Cart not found",
       });
     }
 
-    // Check if the product exists in the cart
     const itemIndex = cart.items.findIndex(
       (item) => item.productId.toString() === productId
     );
 
     if (itemIndex === -1) {
-      return res.status(404).jsonp({
+      return res.jsonp({
         status: "error",
+        messageId: 404,
         message: "Item not found in cart",
       });
     }
@@ -131,7 +134,6 @@ exports.updateOrRemoveItemFromCart = async (req, res) => {
       cart.items[itemIndex].quantity = quantity;
     }
 
-    // Save the updated cart
     await cart.save();
     return res.jsonp({
       status: "success",
@@ -140,57 +142,53 @@ exports.updateOrRemoveItemFromCart = async (req, res) => {
     });
   } catch (error) {
     console.error("Error updating cart:", error);
-    return res.status(500).jsonp({
+    return res.jsonp({
       status: "error",
+      messageId: 500,
       message: "Internal Server Error",
     });
   }
 };
 
-// delete
+// Remove item from cart
 exports.RemoveItemFromCart = async (req, res) => {
-  const { productId, quantity } = req.body;
+  const { productId } = req.body;
 
   try {
-    let cart = await Cart.findOne(); // Assuming there's only one cart or you need to find the cart based on a user or session.
+    let cart = await Cart.findOne({ userId: req.user._id });
     if (!cart) {
-      return res.status(404).jsonp({
+      return res.jsonp({
         status: "error",
+        messageId:404,
         message: "Cart not found",
       });
     }
 
-    // Check if the product exists in the cart
     const itemIndex = cart.items.findIndex(
       (item) => item.productId.toString() === productId
     );
 
     if (itemIndex === -1) {
-      return res.status(404).jsonp({
+      return res.jsonp({
         status: "error",
+         messageId: 404,
         message: "Item not found in cart",
       });
     }
 
-    if (quantity <= 0) {
-      // If quantity is 0 or less, remove the item from the cart
-      cart.items.splice(itemIndex, 1);
-    } else {
-      // Otherwise, update the quantity of the item
-      cart.items[itemIndex].quantity = quantity;
-    }
-
-    // Save the updated cart
+    cart.items.splice(itemIndex, 1);
     await cart.save();
+    
     return res.jsonp({
       status: "success",
-      message: "Cart updated successfully",
+      message: "Item removed from cart",
       data: cart,
     });
   } catch (error) {
-    console.error("Error updating cart:", error);
-    return res.status(500).jsonp({
+    console.error("Error removing item from cart:", error);
+    return res.jsonp({
       status: "error",
+       messageId: 500,
       message: "Internal Server Error",
     });
   }
