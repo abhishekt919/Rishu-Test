@@ -1,14 +1,13 @@
 const mongoose = require("mongoose");
 const Cart = require("../models/Cart");
 const ProductObj = require("../models/Product");
-const User = require("../models/User"); // Import the User model
+const User = require("../models/User");
 
 // Add item to cart
 exports.addItemToCart = async (req, res) => {
-  const { productId, quantity } = req.body;
-
+  const { productId, quantity, userId } = req.body;
   try {
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(userId);
     if (!user) {
       return res.jsonp({
         status: "error",
@@ -61,6 +60,7 @@ exports.addItemToCart = async (req, res) => {
     await cart.save();
     return res.jsonp({
       status: "success",
+      messageId: 200,
       message: "Item added to cart",
       data: cart,
     });
@@ -75,8 +75,9 @@ exports.addItemToCart = async (req, res) => {
 
 // Get cart
 exports.getCart = async (req, res) => {
+  const {id} = req.body;
   try {
-    const cart = await Cart.findOne({ userId: req.user._id }).populate("items.productId");
+    const cart = await Cart.findOne(id).populate("items.productId");
     if (!cart) {
       return res.jsonp({
         status: "success",
@@ -91,7 +92,6 @@ exports.getCart = async (req, res) => {
       message: "Cart Data."
     });
   } catch (error) {
-    console.error("Error fetching cart:", error);
     return res.jsonp({
       status: "error",
       messageId: 500,
@@ -102,10 +102,9 @@ exports.getCart = async (req, res) => {
 
 // Update or remove item from cart
 exports.updateOrRemoveItemFromCart = async (req, res) => {
-  const { productId, quantity } = req.body;
-
+  const { productId, quantity, userId } = req.body;
   try {
-    let cart = await Cart.findOne({ userId: req.user._id });
+    let cart = await Cart.findOne({ userId });
     if (!cart) {
       return res.jsonp({
         status: "error",
@@ -137,11 +136,11 @@ exports.updateOrRemoveItemFromCart = async (req, res) => {
     await cart.save();
     return res.jsonp({
       status: "success",
+      messageId: 200,
       message: "Cart updated successfully",
       data: cart,
     });
   } catch (error) {
-    console.error("Error updating cart:", error);
     return res.jsonp({
       status: "error",
       messageId: 500,
@@ -152,10 +151,9 @@ exports.updateOrRemoveItemFromCart = async (req, res) => {
 
 // Remove item from cart
 exports.RemoveItemFromCart = async (req, res) => {
-  const { productId } = req.body;
-
+  const { productId, userId } = req.body;
   try {
-    let cart = await Cart.findOne({ userId: req.user._id });
+    let cart = await Cart.findOne({ userId });
     if (!cart) {
       return res.jsonp({
         status: "error",
@@ -181,11 +179,11 @@ exports.RemoveItemFromCart = async (req, res) => {
     
     return res.jsonp({
       status: "success",
+      messageId: 200,
       message: "Item removed from cart",
       data: cart,
     });
   } catch (error) {
-    console.error("Error removing item from cart:", error);
     return res.jsonp({
       status: "error",
        messageId: 500,
