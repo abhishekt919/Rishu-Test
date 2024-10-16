@@ -75,7 +75,7 @@ exports.addItemToCart = async (req, res) => {
 
 // Get cart
 exports.getCart = async (req, res) => {
-  const {id} = req.body;
+  const { id } = req.body;
   try {
     const cart = await Cart.findOne(id).populate("items.productId");
     if (!cart) {
@@ -89,7 +89,7 @@ exports.getCart = async (req, res) => {
       status: "success",
       messageId: 200,
       data: cart,
-      message: "Cart Data."
+      message: "Cart Data.",
     });
   } catch (error) {
     return res.jsonp({
@@ -157,7 +157,7 @@ exports.RemoveItemFromCart = async (req, res) => {
     if (!cart) {
       return res.jsonp({
         status: "error",
-        messageId:404,
+        messageId: 404,
         message: "Cart not found",
       });
     }
@@ -169,14 +169,14 @@ exports.RemoveItemFromCart = async (req, res) => {
     if (itemIndex === -1) {
       return res.jsonp({
         status: "error",
-         messageId: 404,
+        messageId: 404,
         message: "Item not found in cart",
       });
     }
 
     cart.items.splice(itemIndex, 1);
     await cart.save();
-    
+
     return res.jsonp({
       status: "success",
       messageId: 200,
@@ -186,7 +186,7 @@ exports.RemoveItemFromCart = async (req, res) => {
   } catch (error) {
     return res.jsonp({
       status: "error",
-       messageId: 500,
+      messageId: 500,
       message: "Internal Server Error",
     });
   }
