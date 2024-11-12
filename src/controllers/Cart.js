@@ -191,3 +191,22 @@ exports.RemoveItemFromCart = async (req, res) => {
     });
   }
 };
+
+exports.payment = async (req, res) => {
+  const { amount, cardNumber, expiryDate, cvv } = req.body;
+
+  if (cardNumber && expiryDate && cvv) {
+    // Simulate a successful payment
+    return res.json({
+      success: true,
+      message: "Payment processed successfully",
+      transactionId: Date.now() + Math.floor(Math.random() * 100000),
+      amount,
+    });
+  } else {
+    return res.status(400).json({
+      success: false,
+      message: "Payment failed due to invalid data",
+    });
+  }
+};
