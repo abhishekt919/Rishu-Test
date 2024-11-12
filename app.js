@@ -7,6 +7,7 @@ const chalk = require("chalk");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const DBSetup = require("./src/config/DB");
+const startTrafficLightCron = require("./src/cronjobs/trafficlight");
 
 const app = express();
 app.use(cors());
@@ -30,6 +31,7 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
+startTrafficLightCron();
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -79,8 +81,10 @@ app.use("/api/v1/product", productRoutes);
 
 // New Product.
 const newProductRoutes = require("./src/routes/newProduct");
-
 app.use("/api/v1/products", newProductRoutes);
+// Traffic lights.
+const trafficLights = require("./src/routes/TrafficLight");
+app.use("/api/v1/traffic-light", trafficLights);
 
 // Student
 const studentRoutes = require("./src/routes/Student");
