@@ -1,15 +1,12 @@
 const mongoose = require("mongoose");
 
 const trafficLightSchema = new mongoose.Schema({
-  state: {
-    type: String,
-    enum: ["red", "yellow", "green"],
-    default: "red",
-  },
-  lastUpdated: {
-    type: Date,
-    default: Date.now,
-  },
+  north: { type: String, default: "red" },
+  south: { type: String, default: "red" },
+  east: { type: String, default: "red" },
+  west: { type: String, default: "red" }
 });
 
-module.exports = mongoose.model("TrafficLight", trafficLightSchema);
+const TrafficLight = mongoose.model("TrafficLight", trafficLightSchema);
+
+module.exports = TrafficLight;

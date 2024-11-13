@@ -5,26 +5,37 @@ const TrafficLight = require("../models/trafficLight");
 exports.getTrafficLightState = async (req, res) => {
   try {
     let trafficLight = await TrafficLight.findOne({});
-    
-    // If no document exists, create a default one
+
+    // If no document exists, create a default one with states for each direction
     if (!trafficLight) {
-      trafficLight = new TrafficLight({ state: "red" });
+      trafficLight = new TrafficLight({
+        north: "red",
+        south: "red",
+        east: "red",
+        west: "red"
+      });
       await trafficLight.save();
     }
 
-    res.json(trafficLight);
+    // Respond with the traffic light states for each direction
+    res.json({
+      north: trafficLight.north,
+      south: trafficLight.south,
+      east: trafficLight.east,
+      west: trafficLight.west
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// Update traffic light state
+
 exports.updateTrafficLightState = async (req, res) => {
-  const { state } = req.body;
+  const { north, south, east, west } = req.body; // Expecting states for each direction
   try {
     const trafficLight = await TrafficLight.findOneAndUpdate(
       {},
-      { state, lastUpdated: new Date() },
+      { north, south, east, west, lastUpdated: new Date() },
       { new: true, upsert: true }
     );
     res.json(trafficLight);
@@ -32,3 +43,4 @@ exports.updateTrafficLightState = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
