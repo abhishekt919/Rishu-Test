@@ -1,34 +1,45 @@
 // cron/trafficLightCron.js
-const cron = require("node-cron");
 const TrafficLight = require("../models/trafficLight");
 const directions = ["north", "south", "east", "west"];
-let currentIndex = 0;
+let currentIndex = 0; // Tracks the current direction with the green light
 
 const startTrafficLightCron = () => {
-  cron.schedule("*/15 * * * * *", async () => {
+  const updateTrafficLight = async () => {
     try {
-      // Prepare the new state with all directions red by default
-      const newState = {
+      let greenState = {
         north: "red",
         south: "red",
         east: "red",
         west: "red"
       };
+      greenState[directions[currentIndex]] = "green";
 
-      // Turn green only the current direction in the sequence
-      newState[directions[currentIndex]] = "green";
-
-      // Update the database with the new state
-      await TrafficLight.findOneAndUpdate({}, newState, { new: true, upsert: true });
-
+      await TrafficLight.findOneAndUpdate({}, greenState, { new: true, upsert: true });
       console.log(`Traffic light updated: ${directions[currentIndex]} is green`);
 
-      // Move to the next direction in the sequence
-      currentIndex = (currentIndex + 1) % directions.length;
+      setTimeout(async () => {
+        let yellowState = {
+          north: "red",
+          south: "red",
+          east: "red",
+          west: "red"
+        };
+        yellowState[directions[currentIndex]] = "yellow";
+
+        await TrafficLight.findOneAndUpdate({}, yellowState, { new: true, upsert: true });
+        console.log(`Traffic light updated: ${directions[currentIndex]} is yellow`);
+
+        setTimeout(() => {
+          currentIndex = (currentIndex + 1) % directions.length;
+          updateTrafficLight();
+        }, 5000);
+      }, 15000);
     } catch (error) {
       console.error("Error updating traffic light:", error);
     }
-  });
+  };
+
+  updateTrafficLight();
 };
 
 module.exports = startTrafficLightCron;
