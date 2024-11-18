@@ -1,12 +1,9 @@
-// controllers/trafficLightController.js
 const TrafficLight = require("../models/trafficLight");
 
-// Get traffic light state
 exports.getTrafficLightState = async (req, res) => {
   try {
     let trafficLight = await TrafficLight.findOne({});
 
-    // If no document exists, create a default one with states for each direction
     if (!trafficLight) {
       trafficLight = new TrafficLight({
         north: "red",
@@ -17,7 +14,6 @@ exports.getTrafficLightState = async (req, res) => {
       await trafficLight.save();
     }
 
-    // Respond with the traffic light states for each direction
     res.json({
       north: trafficLight.north,
       south: trafficLight.south,
@@ -31,7 +27,7 @@ exports.getTrafficLightState = async (req, res) => {
 
 
 exports.updateTrafficLightState = async (req, res) => {
-  const { north, south, east, west } = req.body; // Expecting states for each direction
+  const { north, south, east, west } = req.body; 
   try {
     const trafficLight = await TrafficLight.findOneAndUpdate(
       {},
