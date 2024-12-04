@@ -91,6 +91,15 @@ const studentRoutes = require("./src/routes/Student");
 
 app.use("/api/v1/student", studentRoutes);
 
+//For events.
+const eventRoutes = require("./src/routes/Events");
+app.use("/api/v1/events", eventRoutes);
+
+//For booking
+const bookingRoutes = require("./src/routes/Booking");
+app.use("/api/v1/booking", bookingRoutes);
+
+
 //Cart
 const cartRoutes = require("./src/routes/Cart");
 
