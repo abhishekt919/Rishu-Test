@@ -10,4 +10,5 @@ const eventSchema = new mongoose.Schema({
   price: { type: Number, required: true },
 });
 
-module.exports = mongoose.model('Event', eventSchema);
+const EventObj = mongoose.model("Event", eventSchema);
+module.exports = EventObj;
