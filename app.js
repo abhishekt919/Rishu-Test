@@ -8,6 +8,7 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const DBSetup = require("./src/config/DB");
 const startTrafficLightCron = require("./src/cronjobs/trafficlight");
+const deleteEvent = require("./src/cronjobs/eventCleanup");
 
 const app = express();
 app.use(cors());
@@ -32,6 +33,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 startTrafficLightCron();
+deleteEvent();
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");

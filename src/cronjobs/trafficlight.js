@@ -1,7 +1,7 @@
 // cron/trafficLightCron.js
 const TrafficLight = require("../models/trafficLight");
 const directions = ["north", "south", "east", "west"];
-let currentIndex = 0; // Tracks the current direction with the green light
+let currentIndex = 0; 
 
 const startTrafficLightCron = () => {
   const updateTrafficLight = async () => {
