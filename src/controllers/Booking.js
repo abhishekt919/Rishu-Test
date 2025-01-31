@@ -15,7 +15,7 @@ exports.bookTickets = async (req, res) => {
     event.availableSeats -= seats;
     await event.save();
 
-    res.status(201).json({ message: 'Booking confirmed', booking });
+    res.status(200).json({ message: 'Booking confirmed', booking });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
