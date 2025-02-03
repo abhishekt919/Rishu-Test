@@ -1,6 +1,8 @@
 const jwt = require("jsonwebtoken");
 const CryptoJS = require('crypto-js');
 const NodeGeocoder = require("node-geocoder");
+const twilio= require("twilio")
+require("dotenv").config();
 
 const errorRetrievingData = "Something went wrong. Please try again.";
 
@@ -99,6 +101,29 @@ const verificationCode = () => {
     return code;
 };
 
+const sendMessage = async (phone, message) => {
+    try {
+      const client = twilio(process.env.TwilioAccountSid, process.env.TwilioAccountToken);
+  
+      const response = await client.messages.create({
+        body: message,
+        from: process.env.TwilioPhoneNumber,
+        to: phone,
+      });
+  
+      console.log("Message sent:", response.sid);
+      return { success: true, message: "SMS sent successfully" };
+    } catch (error) {
+      console.error("Error sending SMS:", error);
+      return { success: false, message: "Failed to send SMS", error };
+    }
+  };
+  
+  const sendBookingConfirmation = async (to, title, eventDate, seatCount) => {
+    const messageBody = `Your booking for "${title}" on ${eventDate} is confirmed. Seat(s) booked: ${seatCount}.\nThank you!`;
+    return await sendMessage(to, messageBody);
+  };
+
 module.exports = {
     createJwtToken,
     decryptPassword,
@@ -110,5 +135,6 @@ module.exports = {
     generateReferralCode,
     getAddressFromGeocoder,
     randomString,
-    verificationCode
+    verificationCode,
+    sendBookingConfirmation
 };
