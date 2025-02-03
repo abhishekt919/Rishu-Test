@@ -101,6 +101,9 @@ app.use("/api/v1/events", eventRoutes);
 const bookingRoutes = require("./src/routes/Booking");
 app.use("/api/v1/booking", bookingRoutes);
 
+// For Otp Verification.
+const OtpRoutes = require('./src/routes/OtpVerification');
+app.use("/api/v1", OtpRoutes);
 
 //Cart
 const cartRoutes = require("./src/routes/Cart");

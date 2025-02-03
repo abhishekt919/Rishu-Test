@@ -4,6 +4,7 @@ const NodeGeocoder = require("node-geocoder");
 const twilio = require("twilio");
 require("dotenv").config();
 const nodemailer = require("nodemailer");
+const Otp = require('../models/OtpVerification');
 
 const errorRetrievingData = "Something went wrong. Please try again.";
 
@@ -104,6 +105,64 @@ const verificationCode = () => {
   let code = Math.floor(100000 + Math.random() * 900000);
   return code;
 };
+//Getting otp.
+const client = twilio(process.env.TwilioAccountSid, process.env.TwilioAccountToken);
+
+const sendOTP = async (phoneNumber) => {
+  try {
+    // Generate a new OTP
+    const otpCode = verificationCode();
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // OTP expires in 5 minutes
+
+    // Delete any existing OTP for this phone number
+    await Otp.deleteOne({ phoneNumber });
+
+    // Save new OTP to database
+    const otpEntry = new Otp({ phoneNumber, otp: otpCode, expiresAt });
+    await otpEntry.save();
+
+    // Send OTP via Twilio
+    const message = await client.messages.create({
+      body: `Your OTP is ${otpCode}. It will expire in 5 minutes.`,
+      from: process.env.TwilioPhoneNumber,
+      to: phoneNumber,
+    });
+
+    console.log("OTP Sent:", message.sid);
+    return { success: true, message: "OTP sent successfully" };
+  } catch (error) {
+    console.error("Error sending OTP:", error);
+    throw new Error("Failed to send OTP");
+  }
+};
+
+const verifyOTP = async (phoneNumber, otp) => {
+  try {
+    // Find OTP entry in database
+    const otpEntry = await Otp.findOne({ phoneNumber });
+
+    if (!otpEntry) {
+      return { success: false, message: "OTP not found or expired" };
+    }
+
+    // Check if OTP matches and is still valid
+    if (otpEntry.otp !== otp) {
+      return { success: false, message: "Invalid OTP" };
+    }
+
+    if (otpEntry.expiresAt < new Date()) {
+      return { success: false, message: "OTP has expired" };
+    }
+
+    // OTP is valid, delete it from the database after successful verification
+    await Otp.deleteOne({ phoneNumber });
+
+    return { success: true, message: "OTP verified successfully" };
+  } catch (error) {
+    console.error("Error verifying OTP:", error);
+    throw new Error("OTP verification failed");
+  }
+};
 
 // Sending message using twilio
 
@@ -174,5 +233,7 @@ module.exports = {
   randomString,
   verificationCode,
   sendBookingConfirmation,
-  sendEmail
+  sendEmail,
+  sendOTP,
+  verifyOTP
 };
