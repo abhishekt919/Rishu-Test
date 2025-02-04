@@ -1,36 +1,71 @@
-// controllers/authController.js
 const { sendOTP, verifyOTP } = require('../helpers/helperFunctions');
 
 exports.sendOTPCode = async (req, res) => {
   const { phoneNumber } = req.body;
+
   if (!phoneNumber) {
-    return res.status(400).json({ error: "Phone number is required" });
+    return res.jsonp({
+      status: "error",
+      messageId: 400,
+      message: "Phone number is required",
+    });
   }
 
   try {
     const response = await sendOTP(phoneNumber);
-    return res.status(200).json(response);
+    if (response.success) {
+      return res.jsonp({
+        status: "success",
+        messageId: 200,
+        message: response.message, // e.g., "OTP sent successfully"
+      });
+    } else {
+      return res.jsonp({
+        status: "error",
+        messageId: 400,
+        message: response.message,
+      });
+    }
   } catch (error) {
-    console.error("Error in sendOTPCode:", error);
-    return res.status(500).json({ error: "Failed to send OTP" });
+    return res.jsonp({
+      status: "error",
+      messageId: 500,
+      message: "Failed to send OTP",
+    });
   }
 };
 
 exports.verifyOTPCode = async (req, res) => {
   const { phoneNumber, otp } = req.body;
+
   if (!phoneNumber || !otp) {
-    return res.status(400).json({ error: "Phone number and OTP are required" });
+    return res.jsonp({
+      status: "error",
+      messageId: 400,
+      message: "Phone number and OTP are required",
+    });
   }
 
   try {
     const response = await verifyOTP(phoneNumber, otp);
     if (response.success) {
-      return res.status(200).json(response);
+      return res.jsonp({
+        status: "success",
+        messageId: 200,
+        message: response.message, // e.g., "OTP verified successfully"
+      });
     } else {
-      return res.status(400).json(response);
+      return res.jsonp({
+        status: "error",
+        messageId: 400,
+        message: response.message,
+      });
     }
   } catch (error) {
-    console.error("Error in verifyOTPCode:", error);
-    return res.status(500).json({ error: "OTP verification failed" });
+    return res.jsonp({
+      status: "error",
+      messageId: 500,
+      message: "OTP verification failed",
+    });
   }
 };
