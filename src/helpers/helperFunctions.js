@@ -4,6 +4,8 @@ const NodeGeocoder = require("node-geocoder");
 const twilio = require("twilio");
 require("dotenv").config();
 const nodemailer = require("nodemailer");
+const path = require('path');
+//const hbs = require('nodemailer-express-handlebars');
 const Otp = require('../models/OtpVerification');
 
 const errorRetrievingData = "Something went wrong. Please try again.";
@@ -200,25 +202,52 @@ const transporter = nodemailer.createTransport({
     pass: process.env.GMAIL_PASS,
   },
 });
+let hbs;
+(async () => {
+  hbs = (await import('nodemailer-express-handlebars')).default;
 
-const sendEmail = async (to, subject, text, html) => {
-    const mailOptions = {
-      from: process.env.GMAIL_USER,  // Sender address
-      to,                            // List of recipients
-      subject,                       // Subject line
-      text,                          // Plain text body
-      html,                          // HTML body
-    };
-  
-    try {
-      // Send email
-      await transporter.sendMail(mailOptions);
-      console.log('Email sent successfully');
-    } catch (error) {
-      console.error('Error sending email', error);
-    }
+
+// Configure handlebars options for your email templates
+const handlebarOptions = {
+  viewEngine: {
+    extName: '.hbs',
+    partialsDir: path.resolve(__dirname, '../../views'),
+    defaultLayout: false,
+  },
+  viewPath: path.resolve(__dirname, '../../views'),
+  extName: '.hbs',
+};
+
+// Attach the handlebars plugin to the transporter
+transporter.use('compile', hbs(handlebarOptions));
+})();
+
+const sendEmail = async (to, subject, templateName, context) => {
+  const logoPath = path.resolve(__dirname, '../../public/logo/logo.png'); 
+  const mailOptions = {
+    from: process.env.GMAIL_USER, // Sender address
+    to,                           // Recipient address
+    subject,                      // Subject line
+    template: templateName,       // Template name (e.g., 'emailTemplate')
+    context,
+    attachments: [
+      {
+        filename: 'logo.png',       // This can be any name; it's used for the attachment
+        path: logoPath,             // Local path to the logo image
+        cid: 'companylogo',         // This must match the CID in your template's <img src="cid:companylogo">
+      },
+    ],
   };
-  
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Email sent successfully using template');
+  } catch (error) {
+    console.error('Error sending email', error);
+    throw error;
+  }
+};
+
 
 module.exports = {
   createJwtToken,

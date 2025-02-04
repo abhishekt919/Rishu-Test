@@ -1,0 +1,33 @@
+<!-- views/emailTemplate.hbs -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Email Template</title>
+    <style>
+      /* Add any CSS styling for your email */
+      header, footer {
+        background-color: #f2f2f2;
+        padding: 20px;
+        text-align: center;
+      }
+      main {
+        padding: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+   <img src="cid:companylogo" alt="Company Logo" style="max-width:200px; height:auto;">
+    </header>
+        <main>
+            <h2>{{subject}}</h2>
+            <p>Your booking for the event <strong>{{eventTitle}}</strong> scheduled for <strong>{{eventDate}}</strong> has been confirmed.</p>
+            <p>You have booked <strong>{{seats}}</strong> seats.</p>
+            <p>{{message}}</p>
+        </main>
+    <footer>
+      <p>&copy; 2025 Your Company. All rights reserved.</p>
+    </footer>
+  </body>
+</html>

@@ -7,11 +7,13 @@ exports.bookTickets = async (req, res) => {
   const { to, userId, eventId, seats, userEmail } = req.body;
 
   try {
+    // Find the event and check seat availability
     const event = await Event.findById(eventId);
     if (!event || event.availableSeats < seats) {
       return res.status(400).json({ error: "Insufficient seats available" });
     }
 
+    // Calculate total price and create a booking
     const totalPrice = seats * event.price;
     const booking = new Booking({
       user: userId,
@@ -21,14 +23,25 @@ exports.bookTickets = async (req, res) => {
     });
     await booking.save();
 
+    // Update available seats for the event
     event.availableSeats -= seats;
     await event.save();
-   const subject = 'Booking Confirmation';
-    const text = `Your booking for the event "${event.title}" scheduled for ${event.date} has been confirmed. You have booked ${seats} seats.`;
-    const html = `<p>Your booking for the event <strong>"${event.title}"</strong> scheduled for <strong>${event.date}</strong> has been confirmed.</p><p>You have booked <strong>${seats}</strong> seats.\nThank you!</p>`;
 
-    await sendEmail(userEmail, subject, text, html);
-    // Send SMS Confirmation using helper function
+    // Prepare email data for the HTML template
+    const subject = 'Booking Confirmation';
+    const templateName = 'emailTemplate'; // Name of your template (without the .hbs extension)
+    const context = {
+      subject,
+      eventTitle: event.title,
+      eventDate: event.date,
+      seats,
+      message: `Thank you for booking with us! Your booking has been confirmed.`,
+    };
+
+    // Send email using the template
+    await sendEmail(userEmail, subject, templateName, context);
+
+    // Send SMS confirmation using your SMS helper function
     await sendBookingConfirmation(to, event.title, event.date, seats);
 
     res.status(200).json({ message: "Booking confirmed", booking });
