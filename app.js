@@ -84,6 +84,11 @@ app.use("/api/v1/product", productRoutes);
 // New Product.
 const newProductRoutes = require("./src/routes/newProduct");
 app.use("/api/v1/products", newProductRoutes);
+
+//Creating customer in stripe
+const customer = require("./src/routes/CustomerRoute");
+app.use("/api/v1", customer);
+
 // Traffic lights.
 const trafficLights = require("./src/routes/TrafficLight");
 app.use("/api/v1/traffic-light", trafficLights);

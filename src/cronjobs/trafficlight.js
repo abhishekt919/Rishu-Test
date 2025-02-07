@@ -15,7 +15,7 @@ const startTrafficLightCron = () => {
       greenState[directions[currentIndex]] = "green";
 
       await TrafficLight.findOneAndUpdate({}, greenState, { new: true, upsert: true });
-      console.log(`Traffic light updated: ${directions[currentIndex]} is green`);
+      //console.log(`Traffic light updated: ${directions[currentIndex]} is green`);
 
       setTimeout(async () => {
         let yellowState = {
@@ -27,7 +27,7 @@ const startTrafficLightCron = () => {
         yellowState[directions[currentIndex]] = "yellow";
 
         await TrafficLight.findOneAndUpdate({}, yellowState, { new: true, upsert: true });
-        console.log(`Traffic light updated: ${directions[currentIndex]} is yellow`);
+        //console.log(`Traffic light updated: ${directions[currentIndex]} is yellow`);
 
         setTimeout(() => {
           currentIndex = (currentIndex + 1) % directions.length;
