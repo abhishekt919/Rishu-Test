@@ -203,11 +203,11 @@ const transporter = nodemailer.createTransport({
 
 const sendEmail = async (to, subject, text, html) => {
     const mailOptions = {
-      from: process.env.GMAIL_USER,  // Sender address
-      to,                            // List of recipients
-      subject,                       // Subject line
-      text,                          // Plain text body
-      html,                          // HTML body
+      from: process.env.GMAIL_USER,
+      to,                            
+      subject,                       
+      text,                         
+      html,
     };
   
     try {
