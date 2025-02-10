@@ -1,13 +1,19 @@
 const stripe = require('stripe')(process.env.StripeSecretKey);
-
+const CustomerModel =  require("../models/Customer")
 // Create customer.
 const createCustomer = async (req, res) => {
   const { name, email } = req.body;
   try {
     const customer = await stripe.customers.create({
-      name: name,
-      email: email
+      name,
+      email
     });
+    const newCustomer = new CustomerModel({
+      name: name,
+      email: email,
+      stripeCustomerId: customer.id,
+    });
+    await newCustomer.save();
 
     res.jsonp({
       status: 'success',
